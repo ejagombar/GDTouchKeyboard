@@ -38,8 +38,8 @@ const char keymap[MAX_SHIFT_MODE][ROWS][COLS] =
 	{'V', 'W', 'X', 'Y', 'Z', ' ', '\002'}, // 002 = shift
   },
   {
-	{'`', '1', '2', '3', '4', '5', '6'},
-	{'7', '8', '9', '0', '-', '=', '['},
+	{'0', '1', '2', '3', '4', '5', '6'},
+	{'7', '8', '9', '`', '-', '=', '['},
 	{']', '\\', ';', '\'', ',', '.', '/'},
 	{' ', ' ', ' ', ' ', ' ', ' ', '\002'}, // 002 = shift
   },
@@ -77,9 +77,9 @@ GDTouchKeyboard::~GDTouchKeyboard()
 {
 }
 
-String GDTouchKeyboard::run(String text)
+String GDTouchKeyboard::run(String text, GFXfont setFreeFont )
 {
-  _initKeyboard(text);
+  _initKeyboard(text,setFreeFont);
   _drawKeyboard();
   _keyboard_done = false;
   while(_keyboard_done == false)
@@ -134,12 +134,12 @@ static void _updateInputText()
   }
 }
 
-static void _initKeyboard(String text)
+static void _initKeyboard(String text, GFXfont setFreeFont )
 {
   M5.Lcd.fillScreen(TFT_BLACK);
   M5.Lcd.setTextSize(1);
   M5.Lcd.setTextColor(TFT_GREEN, TFT_BLACK);
-  M5.Lcd.setFreeFont(FF1);
+  M5.Lcd.setFreeFont(setFreeFont);
   M5.Lcd.setTextDatum(TC_DATUM);
 
   // Button A
