@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include "GDTouchKeyboard.h"
-#include <Free_Fonts.h>
+
 
 #define KEYBOARD_X (2)
 #define KEYBOARD_Y (26)
@@ -14,9 +14,6 @@
 #define ROWS (4)
 
 #define MAX_SHIFT_MODE (4)
-
-
-#define COLOR_OCHER (0xbbbf)
 
 typedef enum
 {
@@ -60,8 +57,7 @@ bool _shift_mode = false;
 bool _keyboard_done = false;
 uint32_t _cursor_last;
 bool _cursor_state = false;
-ButtonColors _bc_on = {COLOR_OCHER, WHITE, COLOR_OCHER};
-ButtonColors _bc_off = {BLACK, WHITE, COLOR_OCHER};
+
 
 static void _updateInputText(void);
 static void _initKeyboard(String text = "");
@@ -69,6 +65,28 @@ static void _deinitKeyboard(void);
 static void _btnAEvent(Event& e);
 static void _buttonEvent(Event& e);
 static void _drawKeyboard(void);
+
+void GDTouchKeyboard::setColor(uint16_t setThemeColor)
+{
+  _bc_on = {setThemeColor, WHITE, setThemeColor};
+  _bc_off = {BLACK, WHITE, setThemeColor};
+  themeColor = setThemeColor;
+}
+
+ButtonColors GDTouchKeyboard::get_bc_on()
+{
+  return _bc_on;
+}
+
+ButtonColors GDTouchKeyboard::get_bc_off()
+{
+  return _bc_off;
+}
+
+uint16_t GDTouchKeyboard::getThemeColor()
+{
+  return themeColor;
+}
 
 GDTouchKeyboard::GDTouchKeyboard()
 {
@@ -78,8 +96,9 @@ GDTouchKeyboard::~GDTouchKeyboard()
 {
 }
 
-String GDTouchKeyboard::run(String text)
+String GDTouchKeyboard::run(String text,uint16_t getColor)
 {
+  setColor(getColor);
   _initKeyboard(text);
   _drawKeyboard();
   _keyboard_done = false;
@@ -126,7 +145,7 @@ static void _updateInputText()
   {
     if(_cursor_state == true)
     {
-      M5.Lcd.fillRect(itw + 2, 2, 15, KEYBOARD_Y - 6, COLOR_OCHER);
+      M5.Lcd.fillRect(itw + 2, 2, 15, KEYBOARD_Y - 6, GDTK.getThemeColor());
     }
     else
     {
@@ -154,7 +173,7 @@ static void _initKeyboard(String text)
   {
     for(int c = 0; c < COLS; c++)
     {
-      _button_list[r][c] = new Button(0, 0, 0, 0, false, "", _bc_off, _bc_on);
+      _button_list[r][c] = new Button(0, 0, 0, 0, false, "", GDTK.get_bc_off(), GDTK.get_bc_on());
       _button_list[r][c]->setTextSize(1);
     }
   }
