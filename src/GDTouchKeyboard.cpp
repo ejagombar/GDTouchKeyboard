@@ -115,7 +115,7 @@ static void _updateInputText()
     itw += 14;
   }
 
-  M5.Lcd.setFreeFont(FF2);
+  M5.Lcd.setFreeFont(&FreeSans9pt7b);
   if(_old_input_text != _input_text)
   {
     _old_input_text = _input_text;
@@ -140,7 +140,7 @@ static void _initKeyboard(String text)
   M5.Lcd.fillScreen(TFT_BLACK);
   M5.Lcd.setTextSize(1);
   M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);
-  M5.Lcd.setFreeFont(FS9);
+  M5.Lcd.setFreeFont(&FreeSans9pt7b);
   M5.Lcd.setTextDatum(TC_DATUM);
 
   // Button A
@@ -204,12 +204,12 @@ static void _drawKeyboard()
 
       if(ch == '\002')  // Shift
       {
-        _button_list[r][c]->setFreeFont(FS9);
+        _button_list[r][c]->setFreeFont(&FreeSans9pt7b);
         key = "shft";
       }
       else
       {
-        _button_list[r][c]->setFreeFont(FS18);
+        _button_list[r][c]->setFreeFont(&FreeSans18pt7b);
         key = String(ch);
       }
       _button_list[r][c]->setLabel(key.c_str());
