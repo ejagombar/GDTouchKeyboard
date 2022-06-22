@@ -15,7 +15,8 @@
 
 #define MAX_SHIFT_MODE (4)
 
-#define COLOR_OCHER (0xC460)
+
+#define COLOR_OCHER (0xbbbf)
 
 typedef enum
 {
@@ -59,8 +60,8 @@ bool _shift_mode = false;
 bool _keyboard_done = false;
 uint32_t _cursor_last;
 bool _cursor_state = false;
-ButtonColors _bc_on = {BLUE, GREEN, COLOR_OCHER};
-ButtonColors _bc_off = {BLACK, GREEN, COLOR_OCHER};
+ButtonColors _bc_on = {COLOR_OCHER, WHITE, COLOR_OCHER};
+ButtonColors _bc_off = {BLACK, WHITE, COLOR_OCHER};
 
 static void _updateInputText(void);
 static void _initKeyboard(String text = "");
@@ -77,9 +78,9 @@ GDTouchKeyboard::~GDTouchKeyboard()
 {
 }
 
-String GDTouchKeyboard::run(String text, GFXfont setFreeFont )
+String GDTouchKeyboard::run(String text)
 {
-  _initKeyboard(text,setFreeFont);
+  _initKeyboard(text);
   _drawKeyboard();
   _keyboard_done = false;
   while(_keyboard_done == false)
@@ -134,20 +135,20 @@ static void _updateInputText()
   }
 }
 
-static void _initKeyboard(String text, GFXfont setFreeFont )
+static void _initKeyboard(String text)
 {
   M5.Lcd.fillScreen(TFT_BLACK);
   M5.Lcd.setTextSize(1);
-  M5.Lcd.setTextColor(TFT_GREEN, TFT_BLACK);
-  M5.Lcd.setFreeFont(setFreeFont);
+  M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);
+  M5.Lcd.setFreeFont(FS9);
   M5.Lcd.setTextDatum(TC_DATUM);
 
   // Button A
-  M5.Lcd.drawString("delete", 55, 226, 2);
+  M5.Lcd.drawString("Delete", 55, 226, 2);
   // Button B
-  M5.Lcd.drawString("done", 160, 226, 2);
+  M5.Lcd.drawString("Done", 160, 226, 2);
   // Button C
-  M5.Lcd.drawString("mode", 265, 226, 2);
+  M5.Lcd.drawString("Mode", 265, 226, 2);
 
   for(int r = 0; r < ROWS; r++)
   {
@@ -203,12 +204,12 @@ static void _drawKeyboard()
 
       if(ch == '\002')  // Shift
       {
-        _button_list[r][c]->setFreeFont(FF1);
+        _button_list[r][c]->setFreeFont(FS9);
         key = "shft";
       }
       else
       {
-        _button_list[r][c]->setFreeFont(FF3);
+        _button_list[r][c]->setFreeFont(FS18);
         key = String(ch);
       }
       _button_list[r][c]->setLabel(key.c_str());

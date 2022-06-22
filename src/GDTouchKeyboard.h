@@ -12,7 +12,7 @@ public:
   GDTouchKeyboard();
   ~GDTouchKeyboard();
 
-  String run(String text = "",GFXfont setFreeFont = FF1);
+  String run(String text = "");
 };
 
 extern GDTouchKeyboard GDTK;
