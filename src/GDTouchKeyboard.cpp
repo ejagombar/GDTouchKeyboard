@@ -3,90 +3,9 @@
 
 #include "GDTouchKeyboard.h"
 
+void _btnAEvent(Event& e);
+void _buttonEvent(Event& e);
 
-#define KEYBOARD_X (2)
-#define KEYBOARD_Y (26)
-
-#define KEY_W (45)
-#define KEY_H (50)
-
-#define COLS (7)
-#define ROWS (4)
-
-#define MAX_SHIFT_MODE (4)
-
-typedef enum
-{
-  KEY_MODE_LETTER = 0,
-  KEY_MODE_NUMBER = 1,
-} key_mode_t;
-
-const char keymap[MAX_SHIFT_MODE][ROWS][COLS] =
-{
-  {
-	{'a', 'b', 'c', 'd', 'e', 'f', 'g'},
-	{'h', 'i', 'j', 'k', 'l', 'm', 'n'},
-	{'o', 'p', 'q', 'r', 's', 't', 'u'},
-	{'v', 'w', 'x', 'y', 'z', ' ', '\002'}, // 002 = shift
-  },
-  {
-	{'A', 'B', 'C', 'D', 'E', 'F', 'G'},
-	{'H', 'I', 'J', 'K', 'L', 'M', 'N'},
-	{'O', 'P', 'Q', 'R', 'S', 'T', 'U'},
-	{'V', 'W', 'X', 'Y', 'Z', ' ', '\002'}, // 002 = shift
-  },
-  {
-	{'0', '1', '2', '3', '4', '5', '6'},
-	{'7', '8', '9', '`', '-', '=', '['},
-	{']', '\\', ';', '\'', ',', '.', '/'},
-	{' ', ' ', ' ', ' ', ' ', ' ', '\002'}, // 002 = shift
-  },
-  {
-	{'~', '!', '@', '#', '$', '%', '^'},
-	{'&', '*', '(', ')', '_', '+', '{'},
-	{'}', '|', ':', '"', '<', '>', '?'},
-	{' ', ' ', ' ', ' ', ' ', ' ', '\002'}, // 002 = shift
-  },
-};
-
-Button *_button_list[ROWS][COLS];
-String _input_text = "";
-String _old_input_text = "";
-key_mode_t _key_mode = KEY_MODE_LETTER;
-bool _shift_mode = false;
-bool _keyboard_done = false;
-uint32_t _cursor_last;
-bool _cursor_state = false;
-
-
-static void _updateInputText(void);
-static void _initKeyboard(String text = "");
-static void _deinitKeyboard(void);
-static void _btnAEvent(Event& e);
-static void _buttonEvent(Event& e);
-static void _drawKeyboard(void);
-
-void GDTouchKeyboard::setColor(uint16_t setThemeColor)
-{
-  _bc_on = {setThemeColor, WHITE, setThemeColor};
-  _bc_off = {BLACK, WHITE, setThemeColor};
-  themeColor = setThemeColor;
-}
-
-ButtonColors GDTouchKeyboard::get_bc_on()
-{
-  return _bc_on;
-}
-
-ButtonColors GDTouchKeyboard::get_bc_off()
-{
-  return _bc_off;
-}
-
-uint16_t GDTouchKeyboard::getThemeColor()
-{
-  return themeColor;
-}
 
 GDTouchKeyboard::GDTouchKeyboard()
 {
@@ -96,9 +15,12 @@ GDTouchKeyboard::~GDTouchKeyboard()
 {
 }
 
-String GDTouchKeyboard::run(String text,uint16_t getColor)
+String GDTouchKeyboard::run(String text, uint16_t setColourIn, const GFXfont fontIn)
 {
-  setColor(getColor);
+  font = fontIn;
+  _bc_on = {setColourIn, WHITE, setColourIn};
+  _bc_off = {BLACK, WHITE, setColourIn};
+  themeColor = setColourIn;
   _initKeyboard(text);
   _drawKeyboard();
   _keyboard_done = false;
@@ -122,7 +44,7 @@ String GDTouchKeyboard::run(String text,uint16_t getColor)
   return _input_text;
 }
 
-static void _updateInputText()
+void GDTouchKeyboard::_updateInputText()
 {
   int oitw = M5.Lcd.textWidth(_old_input_text);
   int itw = M5.Lcd.textWidth(_input_text);
@@ -134,7 +56,8 @@ static void _updateInputText()
     itw += 14;
   }
 
-  M5.Lcd.setFreeFont(&FreeSans9pt7b);
+  M5.Lcd.setFreeFont(&font);
+  M5.Lcd.setTextSize(1);
   if(_old_input_text != _input_text)
   {
     _old_input_text = _input_text;
@@ -145,7 +68,7 @@ static void _updateInputText()
   {
     if(_cursor_state == true)
     {
-      M5.Lcd.fillRect(itw + 2, 2, 15, KEYBOARD_Y - 6, GDTK.getThemeColor());
+      M5.Lcd.fillRect(itw + 2, 2, 15, KEYBOARD_Y - 6, themeColor);
     }
     else
     {
@@ -154,26 +77,27 @@ static void _updateInputText()
   }
 }
 
-static void _initKeyboard(String text)
+void GDTouchKeyboard::_initKeyboard(String text)
 {
   M5.Lcd.fillScreen(TFT_BLACK);
   M5.Lcd.setTextSize(1);
   M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);
-  M5.Lcd.setFreeFont(&FreeSans9pt7b);
-  M5.Lcd.setTextDatum(TC_DATUM);
+  M5.Lcd.setFreeFont(&font);
+  //M5.Lcd.setTextDatum(TC_DATUM);
 
   // Button A
-  M5.Lcd.drawString("Delete", 55, 226, 2);
+  M5.Lcd.drawString("Delete", 55, 226,2);
   // Button B
-  M5.Lcd.drawString("Done", 160, 226, 2);
+  M5.Lcd.drawString("Done", 160, 226,2);
   // Button C
-  M5.Lcd.drawString("Mode", 265, 226, 2);
+  M5.Lcd.drawString("Mode", 265, 226,2);
 
   for(int r = 0; r < ROWS; r++)
   {
     for(int c = 0; c < COLS; c++)
     {
-      _button_list[r][c] = new Button(0, 0, 0, 0, false, "", GDTK.get_bc_off(), GDTK.get_bc_on());
+      
+      _button_list[r][c] = new Button(0, 0, 0, 0, false, "",_bc_off, _bc_on);
       _button_list[r][c]->setTextSize(1);
     }
   }
@@ -186,7 +110,7 @@ static void _initKeyboard(String text)
   _shift_mode = false;
 }
 
-static void _deinitKeyboard()
+void GDTouchKeyboard::_deinitKeyboard()
 {
   M5.Buttons.delHandlers(_buttonEvent, nullptr, nullptr);
   M5.Buttons.delHandlers(_btnAEvent, nullptr, nullptr);
@@ -201,7 +125,7 @@ static void _deinitKeyboard()
   }
 }
 
-static void _drawKeyboard()
+void GDTouchKeyboard::_drawKeyboard()
 {
   int x, y;
 
@@ -223,12 +147,15 @@ static void _drawKeyboard()
 
       if(ch == '\002')  // Shift
       {
-        _button_list[r][c]->setFreeFont(&FreeSans9pt7b);
-        key = "shft";
+        _button_list[r][c]->setFreeFont(&font);
+        _button_list[r][c]->setTextSize(1);
+        key = "SHFT";
       }
       else
       {
-        _button_list[r][c]->setFreeFont(&FreeSans18pt7b);
+        _button_list[r][c]->setFreeFont(&font);
+        _button_list[r][c]->setTextSize(2);
+
         key = String(ch);
       }
       _button_list[r][c]->setLabel(key.c_str());
@@ -237,24 +164,24 @@ static void _drawKeyboard()
   }
 }
 
-static void _btnAEvent(Event& e)
+void _btnAEvent(Event& e)
 {
   // Delete all (long press) or delete one char (short press)
   if(e.button == &M5.BtnA)
   {
     if(e.duration > 500)
     {
-      _input_text = "";
+      GDTK._input_text="";
     }
     else
     {
-      _input_text = _input_text.substring(0, _input_text.length() - 1);
+      GDTK._input_text = GDTK._input_text.substring(0, GDTK._input_text.length() - 1);
     }
-    _updateInputText();
+    GDTK._updateInputText();
   }
 }
 
-static void _buttonEvent(Event& e)
+void _buttonEvent(Event& e)
 {
   Button& b = *e.button;
 
@@ -267,24 +194,24 @@ static void _buttonEvent(Event& e)
   // Done
   else if(e.button == &M5.BtnB)
   {
-    _keyboard_done = true;
+    GDTK._keyboard_done = true;
     return;
   }
   // Key mode
   else if(e.button == &M5.BtnC)
   {
-    switch(_key_mode)
+    switch(GDTK._key_mode)
     {
-      case KEY_MODE_LETTER:
-        _key_mode = KEY_MODE_NUMBER;
+      case GDTK.KEY_MODE_LETTER:
+        GDTK._key_mode = GDTK.KEY_MODE_NUMBER;
         break;
       default:
-      case KEY_MODE_NUMBER:
-        _key_mode = KEY_MODE_LETTER;
+      case GDTK.KEY_MODE_NUMBER:
+        GDTK._key_mode = GDTK.KEY_MODE_LETTER;
         break;
     }
-    _shift_mode = false;
-    _drawKeyboard();
+    GDTK._shift_mode = false;
+    GDTK._drawKeyboard();
     return;
   }
   else if(e.button == &M5.background)
@@ -294,15 +221,15 @@ static void _buttonEvent(Event& e)
   }
   else
   {
-    if(String(b.label()) == "shft")
+    if(String(b.label()) == "SHFT")
     {
-      _shift_mode = !_shift_mode;
-      _drawKeyboard();
+      GDTK._shift_mode = !GDTK._shift_mode;
+      GDTK._drawKeyboard();
       return;
     }
-    _input_text += b.label();
+    GDTK._input_text += b.label();
   }
-  _updateInputText();
+  GDTK._updateInputText();
 }
 
 GDTouchKeyboard GDTK;
