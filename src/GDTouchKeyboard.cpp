@@ -83,7 +83,7 @@ void GDTouchKeyboard::_initKeyboard(String text)
   M5.Lcd.setTextSize(1);
   M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);
   M5.Lcd.setFreeFont(&font);
-  //M5.Lcd.setTextDatum(TC_DATUM);
+  M5.Lcd.setTextDatum(TC_DATUM);
 
   // Button A
   M5.Lcd.drawString("Delete", 55, 226,2);
