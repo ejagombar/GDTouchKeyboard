@@ -15,8 +15,9 @@ GDTouchKeyboard::~GDTouchKeyboard()
 {
 }
 
-String GDTouchKeyboard::run(String text, uint16_t setColourIn, const GFXfont fontIn)
+String GDTouchKeyboard::run(String text, uint16_t setColourIn, bool getIsEditable, const GFXfont fontIn)
 {
+  isEditable = getIsEditable;
   font = fontIn;
   _bc_on = {setColourIn, WHITE, setColourIn};
   _bc_off = {BLACK, WHITE, setColourIn};
@@ -24,6 +25,7 @@ String GDTouchKeyboard::run(String text, uint16_t setColourIn, const GFXfont fon
   _initKeyboard(text);
   _drawKeyboard();
   _keyboard_done = false;
+  promptText = text;
   while(_keyboard_done == false)
   {
     M5.update();
@@ -171,11 +173,29 @@ void _btnAEvent(Event& e)
   {
     if(e.duration > 500)
     {
-      GDTK._input_text="";
+      if (GDTK.isEditable)
+      {
+        GDTK._input_text = "";
+      }
+      else
+      {
+        GDTK._input_text=GDTK.promptText;
+      }
     }
     else
     {
-      GDTK._input_text = GDTK._input_text.substring(0, GDTK._input_text.length() - 1);
+      if (GDTK.isEditable)
+      {
+        GDTK._input_text = GDTK._input_text.substring(0, GDTK._input_text.length() - 1);
+      }
+      else
+      {
+        if (GDTK._input_text.length() > GDTK.promptText.length())
+        {
+          GDTK._input_text = GDTK._input_text.substring(0, GDTK._input_text.length() - 1);
+        }
+      }
+      
     }
     GDTK._updateInputText();
   }

@@ -21,7 +21,7 @@ public:
   GDTouchKeyboard();
   ~GDTouchKeyboard();
 
-  String run(String text = "",uint16_t setColourIn = 0x0ad9,const GFXfont fontIn = FreeMonoBold9pt7b);
+  String run(String text = "",uint16_t setColourIn = 0x0ad9, bool getIsEditable = true, const GFXfont fontIn = FreeMonoBold9pt7b);
 
   friend void _btnAEvent(Event& e);
   friend void _buttonEvent(Event& e);
@@ -94,6 +94,8 @@ private:
   uint32_t _cursor_last;
   bool _cursor_state = false;
   GFXfont font;
+  bool isEditable = false;
+  String promptText = "";
 };
 
 extern GDTouchKeyboard GDTK;
