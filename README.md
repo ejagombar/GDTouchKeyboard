@@ -2,10 +2,5 @@
 
 Touch keyboard for M5Core2.
 
-## Usage
-
-See example.
-
-## What does it look like
-
-![](images/gdtk1.png)
+## Fork
+Modified to allow for custom themeing as well as several other improvements.
